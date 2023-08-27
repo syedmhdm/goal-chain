@@ -1,128 +1,218 @@
+// goalCreatedAt: new Date(
+//   new Date().setDate(new Date().getDate() - 4)
+// ).toDateString(),
+import { MdDone, MdDelete, MdEdit, MdInfoOutline } from "react-icons/md";
 import { useState } from "react";
-const accuracyPercentage = 75; // if "allocatedDays" is greater than 100 days then setting "isCompleted" to true within last 25 days of deadline will also set "isGoodPrediction" to true
 
-// only the current goal's date range is editable
-
-// user entered data
-// goal: "complete react js course",
-// deadline: "Tue Oct 31 2023",
-// isCompleted: false,
 let initialGoalList = [
   {
-    id: crypto.randomUUID(),
+    id: 1,
     goal: "complete react js course",
-    deadline: "Tue Oct 31 2023",
-    isCompleted: false,
-    goalCreatedAt: new Date().toDateString(),
-    preRequisiteGoalId: crypto.randomUUID(),
-    postRequisiteGoalId: crypto.randomUUID(),
-    allocatedDays: "",
-    completedInDays: "",
+    deadline: "Sun Aug 20 2023",
+    isCompleted: true,
+    goalCreatedAt: "Tue Aug 01 2023",
+    previousGoalId: null,
+    nextGoalId: 2,
+    allocatedDays: 19,
+    completedInDays: 17,
     isGoodPrediction: true,
     isYourCupOfTea: true, // alert
     isDeadlineUpdated: false, // true means bad prediction
   },
   {
-    id: crypto.randomUUID(),
+    id: 2,
     goal: "Create a banger resume",
-    deadline: "Tue Nov 7 2023",
-    completed: false,
-    goalCreatedAt: new Date(
-      new Date().setDate(new Date().getDate() - 6)
-    ).toDateString(),
-    preRequisiteGoalId: crypto.randomUUID(),
-    postRequisiteGoalId: crypto.randomUUID(),
+    deadline: "Sat Aug 26 2023",
+    isCompleted: true,
+    goalCreatedAt: "Wed Aug 16 2023",
+    previousGoalId: 1,
+    nextGoalId: 3,
+    allocatedDays: 6,
+    completedInDays: 3,
+    isGoodPrediction: false,
+    isYourCupOfTea: true,
+    isDeadlineUpdated: false,
   },
   {
-    id: crypto.randomUUID(),
+    id: 3,
     goal: "apply for remote jobs",
-    deadline: "Tue Oct 31 2023",
-    completed: false,
-    goalCreatedAt: new Date(
-      new Date().setDate(new Date().getDate() - 11)
-    ).toDateString(),
-    preRequisiteGoalId: crypto.randomUUID(),
-    postRequisiteGoalId: crypto.randomUUID(),
+    deadline: "Mon Sep 11 2023",
+    isCompleted: false,
+    goalCreatedAt: new Date().toDateString(),
+    previousGoalId: 2,
+    nextGoalId: 4,
+    allocatedDays: 14,
+    completedInDays: null,
+    isGoodPrediction: null,
+    isYourCupOfTea: null,
+    isDeadlineUpdated: false,
+    currentGoal: true,
   },
   {
-    id: crypto.randomUUID(),
+    id: 4,
     goal: "prepare for interviews",
-    deadline: "Tue Oct 31 2023",
-    completed: false,
-    goalCreatedAt: new Date(
-      new Date().setDate(new Date().getDate() - 1)
-    ).toDateString(),
-    preRequisiteGoalId: crypto.randomUUID(),
-    postRequisiteGoalId: crypto.randomUUID(),
+    deadline: "Sat Sep 23 2023",
+    isCompleted: false,
+    goalCreatedAt: new Date().toDateString(),
+    previousGoalId: 3,
+    nextGoalId: 5,
+    allocatedDays: 12,
+    completedInDays: null,
+    isGoodPrediction: null,
+    isYourCupOfTea: null,
+    isDeadlineUpdated: false,
   },
   {
-    id: crypto.randomUUID(),
+    id: 5,
     goal: "update github and linkedin profile",
-    deadline: "Tue Oct 31 2023",
-    completed: false,
-    goalCreatedAt: new Date(
-      new Date().setDate(new Date().getDate() - 16)
-    ).toDateString(),
-    preRequisiteGoalId: crypto.randomUUID(),
-    postRequisiteGoalId: crypto.randomUUID(),
+    deadline: "Sun Oct 01 2023",
+    isCompleted: false,
+    goalCreatedAt: new Date().toDateString(),
+    previousGoalId: 4,
+    nextGoalId: 6,
+    allocatedDays: 8,
+    completedInDays: null,
+    isGoodPrediction: null,
+    isYourCupOfTea: null,
+    isDeadlineUpdated: false,
   },
   {
-    id: crypto.randomUUID(),
+    id: 6,
     goal: "make schedule for youtube and stuff after geting a remote job",
     deadline: "Tue Oct 31 2023",
-    completed: false,
-    goalCreatedAt: new Date(
-      new Date().setDate(new Date().getDate() - 3)
-    ).toDateString(),
-    preRequisiteGoalId: crypto.randomUUID(),
-    postRequisiteGoalId: crypto.randomUUID(),
+    isCompleted: false,
+    goalCreatedAt: new Date().toDateString(),
+    previousGoalId: 5,
+    nextGoalId: null,
+    allocatedDays: 30,
+    completedInDays: null,
+    isGoodPrediction: null,
+    isYourCupOfTea: null,
+    isDeadlineUpdated: false,
   },
 ];
 
 function App() {
   initialGoalList = initialGoalList.map((goal) => ({
     ...goal,
-    remainingDays: Math.round(
-      (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-    ),
+    remainingDays:
+      Math.round(
+        (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
+      ) < 0
+        ? 0
+        : Math.round(
+            (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
+          ),
   }));
 
   const [goal, setGoal] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [goalList, setGoalList] = useState([]);
+  const [goalList, setGoalList] = useState(initialGoalList);
 
-  console.log(initialGoalList);
+  function handleAddGoal(e) {
+    e.preventDefault();
+
+    if (!goal.trim() || !deadline) return;
+
+    setGoalList((currGoalList) => {
+      const previousGoalId = currGoalList.at(-1).previousGoalId;
+      const previousGoalDeadline = currGoalList.at(-1).deadline;
+
+      return [
+        ...currGoalList,
+        {
+          id: crypto.randomUUID(),
+          goal: goal,
+          deadline: new Date(deadline).toDateString(),
+          isCompleted: false,
+          goalCreatedAt: new Date().toDateString(),
+          previousGoalId: previousGoalId,
+          nextGoalId: null,
+          allocatedDays: Math.round(
+            new Date(deadline) -
+              new Date(previousGoalDeadline) / (1000 * 60 * 60 * 24)
+          ),
+          completedInDays: null,
+          isGoodPrediction: null,
+          isYourCupOfTea: null,
+          isDeadlineUpdated: false,
+          remainingDays:
+            Math.round(
+              (new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24)
+            ) < 0
+              ? 0
+              : Math.round(
+                  (new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24)
+                ),
+        },
+      ];
+    });
+
+    setGoal("");
+    setDeadline("");
+  }
 
   return (
-    <div style={{ marginLeft: "5rem" }}>
-      <h3>Add New Goal</h3>
+    <div className='app'>
+      <div className='goal-chain'>
+        <h1 className='heading-main'>Goal Chain</h1>
 
-      <label>Enter Goal</label>
-      <br />
-      <input
-        type='text'
-        value={goal}
-        onChange={(e) => setGoal(e.target.value)}
-      />
-      <br />
-      <br />
-
-      <label>Select Deadline</label>
-      <br />
-      <input
-        type='date'
-        value={deadline}
-        onChange={(e) => setDeadline(e.target.value)}
-      />
-      <br />
-      <br />
-
-      <button>Add Goal</button>
-
-      <br />
-      <br />
-      <h3>Goal List</h3>
+        <div className='goals'>
+          {goalList.map((goal) => (
+            <Goal key={goal.id} goal={goal} />
+          ))}
+        </div>
+      </div>
+      <form className='form-add-friend'>
+        <h2 className='heading'>Add New Goal</h2>
+        <label>Enter Goal</label>
+        <input
+          type='text'
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+        />
+        <label>Select Deadline</label>
+        <input
+          type='date'
+          value={deadline}
+          onChange={(e) => setDeadline(e.target.value)}
+        />
+        <Button onClick={handleAddGoal}>Add Goal</Button>
+      </form>
     </div>
+  );
+}
+
+function Goal({ goal }) {
+  return (
+    <div
+      className={`goal 
+      ${goal.isGoodPrediction === true ? "good-prediction" : ""} 
+      ${goal.isGoodPrediction === false ? "bad-prediction" : ""} 
+      ${goal.currentGoal === true ? "current-goal" : ""}`}
+    >
+      <h5>{goal.goal}</h5>
+      <h6>Deadline: {goal.deadline}</h6>
+      <h6>Remaining Days: {goal.remainingDays}</h6>
+
+      <div className='icons-div'>
+        {goal.currentGoal ? (
+          <MdDone className='icon' />
+        ) : (
+          <MdInfoOutline className='icon' />
+        )}
+        {goal.isCompleted === false ? <MdEdit className='icon-edit' /> : null}
+        <MdDelete className='icon-danger' />
+      </div>
+    </div>
+  );
+}
+
+function Button({ children, onClick }) {
+  return (
+    <button onClick={onClick} className='button'>
+      {children}
+    </button>
   );
 }
 
