@@ -1,6 +1,11 @@
 // goalCreatedAt: new Date(
 //   new Date().setDate(new Date().getDate() - 4)
 // ).toDateString(),
+
+// if setting the first goal then
+// new Date(new Date().setDate(new Date().getDate() + 1))
+// .toISOString()
+// .split("T")[0]
 import { MdDone, MdDelete, MdEdit, MdInfoOutline } from "react-icons/md";
 import { useState } from "react";
 
@@ -175,6 +180,19 @@ function App() {
         <input
           type='date'
           value={deadline}
+          min={
+            goalList.length === 0
+              ? new Date(new Date().setDate(new Date().getDate() + 1))
+                  .toISOString()
+                  .split("T")[0]
+              : new Date(
+                  new Date(goalList.at(-1).deadline).setDate(
+                    new Date(goalList.at(-1).deadline).getDate() + 3
+                  )
+                )
+                  .toISOString()
+                  .split("T")[0]
+          }
           onChange={(e) => setDeadline(e.target.value)}
         />
         <Button onClick={handleAddGoal}>Add Goal</Button>
