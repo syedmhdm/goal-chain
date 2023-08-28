@@ -143,9 +143,14 @@ form .button {
   flex-direction: column;
   gap: 1rem;
   background-color: var(--color-lightest);
-  min-height: 100px;
+  min-height: 15rem;
+  min-width: 30rem;
   /* background-color: rgba(128, 128, 128, 0.514); */
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+h5 {
+  max-width: 25rem;
 }
 
 .good-prediction {
@@ -189,4 +194,11 @@ form .button {
   flex-direction: column;
   justify-content: space-between;
   max-height: 90%;
+}
+
+.edit-input {
+  height: 3rem;
+  width: 50%;
+  margin: 0px;
+  /* padding: 1rem; */
 }

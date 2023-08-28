@@ -6,9 +6,16 @@
 // new Date(new Date().setDate(new Date().getDate() + 1))
 // .toISOString()
 // .split("T")[0]
-import { MdDone, MdDelete, MdEdit, MdInfoOutline } from "react-icons/md";
+import {
+  MdDone,
+  MdDelete,
+  MdEdit,
+  MdInfoOutline,
+  MdSave,
+} from "react-icons/md";
 import { useState } from "react";
-
+// import DatePicker from "react-datepicker";
+// import "react-datepicker/dist/react-datepicker.css";
 let initialGoalList = [
   {
     id: 1,
@@ -113,7 +120,11 @@ function App() {
   const [goal, setGoal] = useState("");
   const [deadline, setDeadline] = useState("");
   const [goalList, setGoalList] = useState(initialGoalList);
+  const [editGoalId, setEditGoalId] = useState("");
 
+  function handleEditGoal(goalId) {
+    setEditGoalId(goalId);
+  }
   function handleAddGoal(e) {
     e.preventDefault();
 
@@ -164,7 +175,12 @@ function App() {
 
         <div className='goals'>
           {goalList.map((goal) => (
-            <Goal key={goal.id} goal={goal} />
+            <Goal
+              key={goal.id}
+              goal={goal}
+              onEditGoal={handleEditGoal}
+              editGoalId={editGoalId}
+            />
           ))}
         </div>
       </div>
@@ -194,14 +210,29 @@ function App() {
                   .split("T")[0]
           }
           onChange={(e) => setDeadline(e.target.value)}
+          onKeyDown={(e) => e.preventDefault()}
         />
+        {/* <DatePicker /> */}
         <Button onClick={handleAddGoal}>Add Goal</Button>
       </form>
     </div>
   );
 }
 
-function Goal({ goal }) {
+function Goal({ goal, editGoalId, onEditGoal }) {
+  const [editGoal, setEditGoal] = useState(goal.goal);
+  const [editDeadline, setEditDeadline] = useState(
+    new Date(
+      new Date(goal.deadline).setDate(new Date(goal.deadline).getDate() + 1)
+    )
+      .toISOString()
+      .split("T")[0]
+  );
+
+  function handleUpdateGoal(e) {
+    onEditGoal("");
+  }
+
   return (
     <div
       className={`goal 
@@ -209,8 +240,27 @@ function Goal({ goal }) {
       ${goal.isGoodPrediction === false ? "bad-prediction" : ""} 
       ${goal.currentGoal === true ? "current-goal" : ""}`}
     >
-      <h5>{goal.goal}</h5>
-      <h6>Deadline: {goal.deadline}</h6>
+      {editGoalId === goal.id ? (
+        <input
+          className='edit-input'
+          type='text'
+          value={editGoal}
+          onChange={(e) => setEditGoal(e.target.value)}
+        />
+      ) : (
+        <h5>{goal.goal}</h5>
+      )}
+      {editGoalId === goal.id ? (
+        <input
+          className='edit-input'
+          type='date'
+          value={editDeadline}
+          onChange={(e) => setEditDeadline(e.target.value)}
+          onKeyDown={(e) => e.preventDefault()}
+        />
+      ) : (
+        <h6>Deadline: {goal.deadline}</h6>
+      )}
       <h6>Remaining Days: {goal.remainingDays}</h6>
 
       <div className='icons-div'>
@@ -219,7 +269,13 @@ function Goal({ goal }) {
         ) : (
           <MdInfoOutline className='icon' />
         )}
-        {goal.isCompleted === false ? <MdEdit className='icon-edit' /> : null}
+        {goal.isCompleted === false ? (
+          editGoalId !== goal.id ? (
+            <MdEdit onClick={() => onEditGoal(goal.id)} className='icon-edit' />
+          ) : (
+            <MdSave onClick={handleUpdateGoal} className='icon-edit' />
+          )
+        ) : null}
         <MdDelete className='icon-danger' />
       </div>
     </div>
