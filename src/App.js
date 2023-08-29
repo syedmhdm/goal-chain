@@ -1,3 +1,8 @@
+// multitasking is ineffeciant so,
+// idel mind is devil's home so,
+// goal "make money..." and goal "buy bike..." are overlaping from "date" to "date" (info)
+// updating this goal's deadline will result in changing the remaining goal deadlines as well. Are you sure?
+
 // goalCreatedAt: new Date(
 //   new Date().setDate(new Date().getDate() - 4)
 // ).toDateString(),
@@ -180,6 +185,8 @@ function App() {
               goal={goal}
               onEditGoal={handleEditGoal}
               editGoalId={editGoalId}
+              setGoalList={setGoalList}
+              goalList={goalList}
             />
           ))}
         </div>
@@ -219,7 +226,7 @@ function App() {
   );
 }
 
-function Goal({ goal, editGoalId, onEditGoal }) {
+function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
   const [editGoal, setEditGoal] = useState(goal.goal);
   const [editDeadline, setEditDeadline] = useState(
     new Date(
@@ -229,8 +236,24 @@ function Goal({ goal, editGoalId, onEditGoal }) {
       .split("T")[0]
   );
 
+  const previousGoal = goalList.find(
+    (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
+  );
+
   function handleUpdateGoal(e) {
     onEditGoal("");
+    setGoalList((previousGoalList) => {
+      const updatedGoalList = previousGoalList.map((everyGoal) =>
+        goal.id === everyGoal.id
+          ? {
+              ...everyGoal,
+              goal: editGoal,
+              deadline: new Date(editDeadline).toDateString(),
+            }
+          : everyGoal
+      );
+      return updatedGoalList;
+    });
   }
 
   return (
@@ -257,6 +280,23 @@ function Goal({ goal, editGoalId, onEditGoal }) {
           value={editDeadline}
           onChange={(e) => setEditDeadline(e.target.value)}
           onKeyDown={(e) => e.preventDefault()}
+          min={
+            goal.currentGoal
+              ? new Date(new Date().setDate(new Date().getDate() + 1))
+                  .toISOString()
+                  .split("T")[0]
+              : previousGoal
+              ? new Date(
+                  new Date(previousGoal.deadline).setDate(
+                    new Date(previousGoal.deadline).getDate() + 3
+                  )
+                )
+                  .toISOString()
+                  .split("T")[0]
+              : new Date(new Date().setDate(new Date().getDate() + 1))
+                  .toISOString()
+                  .split("T")[0]
+          }
         />
       ) : (
         <h6>Deadline: {goal.deadline}</h6>
