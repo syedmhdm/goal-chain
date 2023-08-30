@@ -149,8 +149,8 @@ function App() {
     if (!goal.trim() || !deadline) return;
 
     setGoalList((currGoalList) => {
-      const previousGoalId = currGoalList.at(-1).previousGoalId;
-      const previousGoalDeadline = currGoalList.at(-1).deadline;
+      const previousGoalId = currGoalList.at(-1)?.previousGoalId;
+      const previousGoalDeadline = currGoalList.at(-1)?.deadline;
 
       return [
         ...currGoalList,
@@ -162,10 +162,15 @@ function App() {
           goalCreatedAt: new Date().toDateString(),
           previousGoalId: previousGoalId,
           nextGoalId: null,
-          allocatedDays: Math.round(
-            new Date(deadline) -
-              new Date(previousGoalDeadline) / (1000 * 60 * 60 * 24)
-          ),
+          allocatedDays: previousGoalDeadline
+            ? Math.round(
+                new Date(deadline) / (1000 * 60 * 60 * 24) -
+                  new Date(previousGoalDeadline) / (1000 * 60 * 60 * 24)
+              )
+            : Math.round(
+                new Date(deadline) / (1000 * 60 * 60 * 24) -
+                  new Date() / (1000 * 60 * 60 * 24)
+              ),
           completedInDays: null,
           isGoodPrediction: null,
           isYourCupOfTea: null,
@@ -253,6 +258,8 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
     (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
   );
 
+  // remainingDays (show as derived state)
+
   function handleUpdateGoal(e) {
     setGoalList((previousGoalList) => {
       let goalAfterEditGoal = false;
@@ -263,10 +270,28 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
         if (everyGoal.isCompleted === true) {
           return updatedGoal;
         } else if (editGoalId === everyGoal.id) {
-          goalAfterEditGoal = true;
           updatedGoal.goal = editGoal;
-          editGoalPreviousDeadline = everyGoal.deadline;
-          updatedGoal.deadline = new Date(editDeadline).toDateString();
+
+          if (everyGoal.deadline !== new Date(editDeadline).toDateString()) {
+            goalAfterEditGoal = true;
+            editGoalPreviousDeadline = everyGoal.deadline;
+            updatedGoal.deadline = new Date(editDeadline).toDateString();
+            updatedGoal.isGoodPrediction = false;
+            updatedGoal.isDeadlineUpdated = true; // (false if deadline is not updated)
+            updatedGoal.previousAllocatedDays = everyGoal.previousAllocatedDays
+              ? [...everyGoal.previousAllocatedDays, everyGoal.allocatedDays]
+              : [everyGoal.allocatedDays];
+
+            updatedGoal.allocatedDays = previousGoal
+              ? Math.round(
+                  new Date(editDeadline) / (1000 * 60 * 60 * 24) -
+                    new Date(previousGoal.deadline) / (1000 * 60 * 60 * 24)
+                )
+              : Math.round(
+                  new Date(editDeadline) / (1000 * 60 * 60 * 24) -
+                    new Date() / (1000 * 60 * 60 * 24)
+                );
+          }
         } else if (goalAfterEditGoal) {
           const plusOrMinusDays =
             new Date(editDeadline) / (1000 * 60 * 60 * 24) -

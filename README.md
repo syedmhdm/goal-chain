@@ -37,6 +37,7 @@ isDeadlineUpdated: true (false if deadline is not updated)
 goalAfterEditGoal:
 deadline
 
+data and logic is done for this feature, UI is work remains
 new feature idea:
 in info popup:
 edit date history
@@ -44,3 +45,5 @@ goal edit history
 dead line edit history
 allocatedDays history
 reason for good or bad prediction.
+
+delete need to be completed
