@@ -222,8 +222,8 @@ function App() {
                   .toISOString()
                   .split("T")[0]
               : new Date(
-                  new Date().setDate(
-                    Math.ceil(new Date(goalList.at(-1).deadline).getDate() + 2)
+                  new Date(goalList.at(-1).deadline).setDate(
+                    new Date(goalList.at(-1).deadline).getDate() + 3
                   )
                 )
                   .toISOString()
@@ -266,16 +266,11 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
           goalAfterEditGoal = true;
           updatedGoal.goal = editGoal;
           editGoalPreviousDeadline = everyGoal.deadline;
-          updatedGoal.deadline = editDeadline;
+          updatedGoal.deadline = new Date(editDeadline).toDateString();
         } else if (goalAfterEditGoal) {
-          // new Date(
-          //   new Date().setDate(
-          //     Math.ceil(new Date(goalList.at(-1).deadline).getDate() + 2)
-          //   )
-          // )
-          //   .toISOString()
-          //   .split("T")[0]
-          const plusOrMinusDays = editDeadline - editGoalPreviousDeadline;
+          const plusOrMinusDays =
+            new Date(editDeadline) / (1000 * 60 * 60 * 24) -
+            new Date(editGoalPreviousDeadline) / (1000 * 60 * 60 * 24);
           updatedGoal.deadline = new Date(
             new Date(everyGoal.deadline).setDate(
               new Date(everyGoal.deadline).getDate() + plusOrMinusDays
