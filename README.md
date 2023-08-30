@@ -21,3 +21,26 @@ const accuracyPercentage = 75; if "allocatedDays" is greater than 100 days then 
 // goal: "complete react js course",
 // deadline: "Tue Oct 31 2023",
 // isCompleted: false,
+
+### New Feature Idea
+
+Editing a goal results in updating:
+
+Currently editing goal: if (current goal)
+goal
+deadline
+previousAllocatedDays [13,32,42...] (add new property)
+allocatedDays
+isGoodPrediction false
+isDeadlineUpdated: true (false if deadline is not updated)
+
+goalAfterEditGoal:
+deadline
+
+new feature idea:
+in info popup:
+edit date history
+goal edit history
+dead line edit history
+allocatedDays history
+reason for good or bad prediction.

@@ -1,3 +1,16 @@
+// add goal form old logic
+//            goalList.length === 0
+// ? new Date(new Date().setDate(new Date().getDate() + 1))
+// .toISOString()
+// .split("T")[0]
+// : new Date(
+// new Date(goalList.at(-1).deadline).setDate(
+//   new Date(goalList.at(-1).deadline).getDate() + 3
+// )
+// )
+// .toISOString()
+// .split("T")[0]
+
 // multitasking is ineffeciant so,
 // idel mind is devil's home so,
 // goal "make money..." and goal "buy bike..." are overlaping from "date" to "date" (info)
@@ -209,8 +222,8 @@ function App() {
                   .toISOString()
                   .split("T")[0]
               : new Date(
-                  new Date(goalList.at(-1).deadline).setDate(
-                    new Date(goalList.at(-1).deadline).getDate() + 3
+                  new Date().setDate(
+                    Math.ceil(new Date(goalList.at(-1).deadline).getDate() + 2)
                   )
                 )
                   .toISOString()
@@ -241,19 +254,39 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
   );
 
   function handleUpdateGoal(e) {
-    onEditGoal("");
     setGoalList((previousGoalList) => {
-      const updatedGoalList = previousGoalList.map((everyGoal) =>
-        goal.id === everyGoal.id
-          ? {
-              ...everyGoal,
-              goal: editGoal,
-              deadline: new Date(editDeadline).toDateString(),
-            }
-          : everyGoal
-      );
+      let goalAfterEditGoal = false;
+      let editGoalPreviousDeadline;
+
+      const updatedGoalList = previousGoalList.map((everyGoal) => {
+        let updatedGoal = { ...everyGoal };
+        if (everyGoal.isCompleted === true) {
+          return updatedGoal;
+        } else if (editGoalId === everyGoal.id) {
+          goalAfterEditGoal = true;
+          updatedGoal.goal = editGoal;
+          editGoalPreviousDeadline = everyGoal.deadline;
+          updatedGoal.deadline = editDeadline;
+        } else if (goalAfterEditGoal) {
+          // new Date(
+          //   new Date().setDate(
+          //     Math.ceil(new Date(goalList.at(-1).deadline).getDate() + 2)
+          //   )
+          // )
+          //   .toISOString()
+          //   .split("T")[0]
+          const plusOrMinusDays = editDeadline - editGoalPreviousDeadline;
+          updatedGoal.deadline = new Date(
+            new Date(everyGoal.deadline).setDate(
+              new Date(everyGoal.deadline).getDate() + plusOrMinusDays
+            )
+          ).toDateString();
+        }
+        return updatedGoal;
+      });
       return updatedGoalList;
     });
+    onEditGoal("");
   }
 
   return (
