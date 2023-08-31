@@ -74,7 +74,7 @@ let initialGoalList = [
   //   allocatedDays: 14,
   //   completedInDays: null,
   //   isGoodPrediction: null,
-  //   isYourCupOfTea: null,
+  //   isYourCupOfTea: true,
   //   isDeadlineUpdated: false,
   //   currentGoal: true,
   // },
@@ -89,7 +89,7 @@ let initialGoalList = [
   //   allocatedDays: 12,
   //   completedInDays: null,
   //   isGoodPrediction: null,
-  //   isYourCupOfTea: null,
+  //   isYourCupOfTea: true,
   //   isDeadlineUpdated: false,
   // },
   // {
@@ -103,7 +103,7 @@ let initialGoalList = [
   //   allocatedDays: 8,
   //   completedInDays: null,
   //   isGoodPrediction: null,
-  //   isYourCupOfTea: null,
+  //   isYourCupOfTea: true,
   //   isDeadlineUpdated: false,
   // },
   // {
@@ -117,7 +117,7 @@ let initialGoalList = [
   //   allocatedDays: 30,
   //   completedInDays: null,
   //   isGoodPrediction: null,
-  //   isYourCupOfTea: null,
+  //   isYourCupOfTea: true,
   //   isDeadlineUpdated: false,
   // },
 ];
@@ -169,7 +169,14 @@ function App() {
 
     setGoalList((currGoalList) => {
       const previousGoalId = currGoalList.at(-1)?.id;
+      const previousGoalIsCompleted = currGoalList.at(-1)?.isCompleted;
       const previousGoalDeadline = currGoalList.at(-1)?.deadline;
+
+      const curGoal = previousGoalIsCompleted
+        ? true
+        : !previousGoalId
+        ? true
+        : false;
 
       return [
         ...currGoalList,
@@ -192,9 +199,9 @@ function App() {
               ),
           completedInDays: null,
           isGoodPrediction: null,
-          isYourCupOfTea: null,
+          isYourCupOfTea: true,
           isDeadlineUpdated: false,
-          currentGoal: previousGoalId ? false : true,
+          currentGoal: curGoal,
         },
       ];
     });
@@ -209,16 +216,18 @@ function App() {
         <h1 className='heading-main'>Goal Chain</h1>
 
         <div className='goals'>
-          {goalList.map((goal) => (
-            <Goal
-              key={goal.id}
-              goal={goal}
-              onEditGoal={handleEditGoal}
-              editGoalId={editGoalId}
-              setGoalList={setGoalList}
-              goalList={goalList}
-            />
-          ))}
+          {goalList.map((goal) =>
+            goal.isYourCupOfTea ? (
+              <Goal
+                key={goal.id}
+                goal={goal}
+                onEditGoal={handleEditGoal}
+                editGoalId={editGoalId}
+                setGoalList={setGoalList}
+                goalList={goalList}
+              />
+            ) : null
+          )}
         </div>
       </div>
       <form className='form-add-friend'>
@@ -276,6 +285,31 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
   const previousGoal = goalList.find(
     (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
   );
+
+  function handleDeleteGoal(e) {
+    // alert (are you sure that "this goal" is not your cup of tea?)
+    setGoalList((otherGoals) => {
+      let help = false;
+      const newGoals = otherGoals.map((otherGoal) => {
+        let newOtherGoal = { ...otherGoal };
+        if (otherGoal.id === goal.id) {
+          if (goal.currentGoal) {
+            help = true;
+          }
+          newOtherGoal.isYourCupOfTea = false;
+        } else if (otherGoal.id === goal.previousGoalId) {
+          newOtherGoal.nextGoalId = goal.nextGoalId;
+        } else if (otherGoal.id === goal.nextGoalId) {
+          if (!otherGoal.currentGoal) {
+            newOtherGoal.currentGoal = help;
+          }
+          newOtherGoal.previousGoal = goal.previousGoalId;
+        }
+        return newOtherGoal;
+      });
+      return newGoals;
+    });
+  }
 
   function handleUpdateGoal(e) {
     setGoalList((previousGoalList) => {
@@ -386,7 +420,7 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
             <MdSave onClick={handleUpdateGoal} className='icon-edit' />
           )
         ) : null}
-        <MdDelete className='icon-danger' />
+        <MdDelete onClick={handleDeleteGoal} className='icon-danger' />
       </div>
     </div>
   );
