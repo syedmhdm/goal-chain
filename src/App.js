@@ -35,105 +35,124 @@ import { useState } from "react";
 // import DatePicker from "react-datepicker";
 // import "react-datepicker/dist/react-datepicker.css";
 let initialGoalList = [
-  {
-    id: 1,
-    goal: "complete react js course",
-    deadline: "Sun Aug 20 2023",
-    isCompleted: true,
-    goalCreatedAt: "Tue Aug 01 2023",
-    previousGoalId: null,
-    nextGoalId: 2,
-    allocatedDays: 19,
-    completedInDays: 17,
-    isGoodPrediction: true,
-    isYourCupOfTea: true, // alert
-    isDeadlineUpdated: false, // true means bad prediction
-  },
-  {
-    id: 2,
-    goal: "Create a banger resume",
-    deadline: "Sat Aug 26 2023",
-    isCompleted: true,
-    goalCreatedAt: "Wed Aug 16 2023",
-    previousGoalId: 1,
-    nextGoalId: 3,
-    allocatedDays: 6,
-    completedInDays: 3,
-    isGoodPrediction: false,
-    isYourCupOfTea: true,
-    isDeadlineUpdated: false,
-  },
-  {
-    id: 3,
-    goal: "apply for remote jobs",
-    deadline: "Mon Sep 11 2023",
-    isCompleted: false,
-    goalCreatedAt: new Date().toDateString(),
-    previousGoalId: 2,
-    nextGoalId: 4,
-    allocatedDays: 14,
-    completedInDays: null,
-    isGoodPrediction: null,
-    isYourCupOfTea: null,
-    isDeadlineUpdated: false,
-    currentGoal: true,
-  },
-  {
-    id: 4,
-    goal: "prepare for interviews",
-    deadline: "Sat Sep 23 2023",
-    isCompleted: false,
-    goalCreatedAt: new Date().toDateString(),
-    previousGoalId: 3,
-    nextGoalId: 5,
-    allocatedDays: 12,
-    completedInDays: null,
-    isGoodPrediction: null,
-    isYourCupOfTea: null,
-    isDeadlineUpdated: false,
-  },
-  {
-    id: 5,
-    goal: "update github and linkedin profile",
-    deadline: "Sun Oct 01 2023",
-    isCompleted: false,
-    goalCreatedAt: new Date().toDateString(),
-    previousGoalId: 4,
-    nextGoalId: 6,
-    allocatedDays: 8,
-    completedInDays: null,
-    isGoodPrediction: null,
-    isYourCupOfTea: null,
-    isDeadlineUpdated: false,
-  },
-  {
-    id: 6,
-    goal: "make schedule for youtube and stuff after geting a remote job",
-    deadline: "Tue Oct 31 2023",
-    isCompleted: false,
-    goalCreatedAt: new Date().toDateString(),
-    previousGoalId: 5,
-    nextGoalId: null,
-    allocatedDays: 30,
-    completedInDays: null,
-    isGoodPrediction: null,
-    isYourCupOfTea: null,
-    isDeadlineUpdated: false,
-  },
+  // {
+  //   id: 1,
+  //   goal: "complete react js course",
+  //   deadline: "Sun Aug 20 2023",
+  //   isCompleted: true,
+  //   goalCreatedAt: "Tue Aug 01 2023",
+  //   previousGoalId: null,
+  //   nextGoalId: 2,
+  //   allocatedDays: 19,
+  //   completedInDays: 17,
+  //   isGoodPrediction: true,
+  //   isYourCupOfTea: true, // alert
+  //   isDeadlineUpdated: false, // true means bad prediction
+  // },
+  // {
+  //   id: 2,
+  //   goal: "Create a banger resume",
+  //   deadline: "Sat Aug 26 2023",
+  //   isCompleted: true,
+  //   goalCreatedAt: "Wed Aug 16 2023",
+  //   previousGoalId: 1,
+  //   nextGoalId: 3,
+  //   allocatedDays: 6,
+  //   completedInDays: 3,
+  //   isGoodPrediction: false,
+  //   isYourCupOfTea: true,
+  //   isDeadlineUpdated: false,
+  // },
+  // {
+  //   id: 3,
+  //   goal: "apply for remote jobs",
+  //   deadline: "Mon Sep 11 2023",
+  //   isCompleted: false,
+  //   goalCreatedAt: new Date().toDateString(),
+  //   previousGoalId: 2,
+  //   nextGoalId: 4,
+  //   allocatedDays: 14,
+  //   completedInDays: null,
+  //   isGoodPrediction: null,
+  //   isYourCupOfTea: null,
+  //   isDeadlineUpdated: false,
+  //   currentGoal: true,
+  // },
+  // {
+  //   id: 4,
+  //   goal: "prepare for interviews",
+  //   deadline: "Sat Sep 23 2023",
+  //   isCompleted: false,
+  //   goalCreatedAt: new Date().toDateString(),
+  //   previousGoalId: 3,
+  //   nextGoalId: 5,
+  //   allocatedDays: 12,
+  //   completedInDays: null,
+  //   isGoodPrediction: null,
+  //   isYourCupOfTea: null,
+  //   isDeadlineUpdated: false,
+  // },
+  // {
+  //   id: 5,
+  //   goal: "update github and linkedin profile",
+  //   deadline: "Sun Oct 01 2023",
+  //   isCompleted: false,
+  //   goalCreatedAt: new Date().toDateString(),
+  //   previousGoalId: 4,
+  //   nextGoalId: 6,
+  //   allocatedDays: 8,
+  //   completedInDays: null,
+  //   isGoodPrediction: null,
+  //   isYourCupOfTea: null,
+  //   isDeadlineUpdated: false,
+  // },
+  // {
+  //   id: 6,
+  //   goal: "make schedule for youtube and stuff after geting a remote job",
+  //   deadline: "Tue Oct 31 2023",
+  //   isCompleted: false,
+  //   goalCreatedAt: new Date().toDateString(),
+  //   previousGoalId: 5,
+  //   nextGoalId: null,
+  //   allocatedDays: 30,
+  //   completedInDays: null,
+  //   isGoodPrediction: null,
+  //   isYourCupOfTea: null,
+  //   isDeadlineUpdated: false,
+  // },
 ];
 
 function App() {
-  initialGoalList = initialGoalList.map((goal) => ({
-    ...goal,
-    remainingDays:
+  let addDaysToGoals = 0;
+  initialGoalList = initialGoalList.map((goal) => {
+    let updatedGoal = { ...goal };
+
+    let newDeadline = goal.deadline;
+    if (
+      goal.currentGoal &&
       Math.round(
         (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
       ) < 0
-        ? 0
-        : Math.round(
-            (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-          ),
-  }));
+    ) {
+      addDaysToGoals =
+        new Date() / (1000 * 60 * 60 * 24) -
+        new Date(goal.deadline) / (1000 * 60 * 60 * 24);
+
+      updatedGoal.allocatedDays = Math.round(
+        goal.allocatedDays + addDaysToGoals
+      );
+      updatedGoal.isDeadlineUpdated = true;
+    }
+    newDeadline = new Date(
+      new Date(goal.deadline).setDate(
+        new Date(goal.deadline).getDate() + addDaysToGoals
+      )
+    ).toDateString();
+
+    updatedGoal.deadline = newDeadline;
+
+    return updatedGoal;
+  });
 
   const [goal, setGoal] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -149,7 +168,7 @@ function App() {
     if (!goal.trim() || !deadline) return;
 
     setGoalList((currGoalList) => {
-      const previousGoalId = currGoalList.at(-1)?.previousGoalId;
+      const previousGoalId = currGoalList.at(-1)?.id;
       const previousGoalDeadline = currGoalList.at(-1)?.deadline;
 
       return [
@@ -175,14 +194,7 @@ function App() {
           isGoodPrediction: null,
           isYourCupOfTea: null,
           isDeadlineUpdated: false,
-          remainingDays:
-            Math.round(
-              (new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24)
-            ) < 0
-              ? 0
-              : Math.round(
-                  (new Date(deadline) - new Date()) / (1000 * 60 * 60 * 24)
-                ),
+          currentGoal: previousGoalId ? false : true,
         },
       ];
     });
@@ -253,12 +265,17 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
       .toISOString()
       .split("T")[0]
   );
+  const remainingDays =
+    Math.round((new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)) <
+    0
+      ? 0
+      : Math.round(
+          (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
+        );
 
   const previousGoal = goalList.find(
     (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
   );
-
-  // remainingDays (show as derived state)
 
   function handleUpdateGoal(e) {
     setGoalList((previousGoalList) => {
@@ -276,7 +293,7 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
             goalAfterEditGoal = true;
             editGoalPreviousDeadline = everyGoal.deadline;
             updatedGoal.deadline = new Date(editDeadline).toDateString();
-            updatedGoal.isGoodPrediction = false;
+            // updatedGoal.isGoodPrediction = false; (only when marked completed)
             updatedGoal.isDeadlineUpdated = true; // (false if deadline is not updated)
             updatedGoal.previousAllocatedDays = everyGoal.previousAllocatedDays
               ? [...everyGoal.previousAllocatedDays, everyGoal.allocatedDays]
@@ -354,7 +371,7 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
       ) : (
         <h6>Deadline: {goal.deadline}</h6>
       )}
-      <h6>Remaining Days: {goal.remainingDays}</h6>
+      <h6>Remaining Days: {remainingDays}</h6>
 
       <div className='icons-div'>
         {goal.currentGoal ? (
