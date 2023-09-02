@@ -24,13 +24,7 @@
 // new Date(new Date().setDate(new Date().getDate() + 1))
 // .toISOString()
 // .split("T")[0]
-import {
-  MdDone,
-  MdDelete,
-  MdEdit,
-  MdInfoOutline,
-  MdSave,
-} from "react-icons/md";
+import { MdDone, MdDelete, MdEdit, MdSave } from "react-icons/md";
 import { useState } from "react";
 // import DatePicker from "react-datepicker";
 // import "react-datepicker/dist/react-datepicker.css";
@@ -40,11 +34,12 @@ let initialGoalList = [
     goal: "complete react js course",
     deadline: "Sun Aug 20 2023",
     isCompleted: true,
+    goalCompletedOn: "Sun Aug 20 2023",
     goalCreatedAt: "Tue Aug 01 2023",
     previousGoalId: null,
     nextGoalId: 2,
     allocatedDays: 19,
-    completedInDays: 17,
+    completedInDays: 19,
     isGoodPrediction: true,
     isDeadlineUpdated: false, // true means bad prediction
   },
@@ -52,6 +47,7 @@ let initialGoalList = [
     id: 2,
     goal: "Create a banger resume",
     deadline: "Sat Aug 26 2023",
+    goalCompletedOn: "Wed Aug 23 2023",
     isCompleted: true,
     goalCreatedAt: "Wed Aug 16 2023",
     previousGoalId: 1,
@@ -69,7 +65,7 @@ let initialGoalList = [
     goalCreatedAt: new Date().toDateString(),
     previousGoalId: 2,
     nextGoalId: 4,
-    allocatedDays: 14,
+    allocatedDays: 19,
     completedInDays: null,
     isGoodPrediction: null,
     isDeadlineUpdated: false,
@@ -268,18 +264,9 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
       .toISOString()
       .split("T")[0]
   );
-  const completedOrRemaining =
-    Math.round((new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)) <
-    0 ? (
-      <h6>Completed In {goal.completedInDays} Days</h6>
-    ) : (
-      <h6>
-        Remaining Days:{" "}
-        {Math.round(
-          (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-        )}
-      </h6>
-    );
+  const remainingDays = Math.round(
+    (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
+  );
 
   const previousGoal = goalList.find(
     (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
@@ -356,6 +343,78 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
     onEditGoal("");
   }
 
+  function handleCompleteGoal(e) {
+    setGoalList((previousGoalList) => {
+      const updatedGoals = previousGoalList.map((singleGoal) => {
+        if (singleGoal.isCompleted) {
+          return singleGoal;
+        } else if (
+          goal.id === singleGoal.id &&
+          singleGoal.currentGoal &&
+          !singleGoal.isCompleted
+        ) {
+          let completedInDays = 1;
+          let isGoodPrediction = true;
+          let hlpr = Math.ceil(goal.allocatedDays / 4);
+          if (hlpr > 25) {
+            hlpr = 25;
+          }
+          let goalStartDate = goal.goalCreatedAt;
+          if (previousGoal) {
+            goalStartDate = previousGoal.goalCompletedOn;
+          }
+          completedInDays = Math.round(
+            new Date() / (1000 * 60 * 60 * 24) -
+              new Date(goalStartDate) / (1000 * 60 * 60 * 24)
+          );
+          if (goal.isDeadlineUpdated) {
+            isGoodPrediction = false;
+          } else if (goal.allocatedDays - completedInDays > hlpr) {
+            isGoodPrediction = false;
+          }
+          return {
+            ...singleGoal,
+            isCompleted: true,
+            goalCompletedOn: new Date().toDateString(),
+            completedInDays: completedInDays,
+            isGoodPrediction: isGoodPrediction,
+            currentGoal: false,
+          };
+        } else if (goal.id === singleGoal.previousGoalId) {
+          const addDays =
+            new Date() / (1000 * 60 * 60 * 24) -
+            new Date(goal.deadline) / (1000 * 60 * 60 * 24);
+
+          return {
+            ...singleGoal,
+            currentGoal: true,
+            deadline: new Date(
+              new Date(singleGoal.deadline).setDate(
+                new Date(singleGoal.deadline).getDate() + addDays
+              )
+            ).toDateString(),
+          };
+        } else if (!singleGoal.isCompleted) {
+          const addDays =
+            new Date() / (1000 * 60 * 60 * 24) -
+            new Date(goal.deadline) / (1000 * 60 * 60 * 24);
+
+          return {
+            ...singleGoal,
+            deadline: new Date(
+              new Date(singleGoal.deadline).setDate(
+                new Date(singleGoal.deadline).getDate() + addDays
+              )
+            ).toDateString(),
+          };
+        } else {
+          return singleGoal;
+        }
+      });
+      return updatedGoals;
+    });
+  }
+
   return (
     <div
       className={`goal 
@@ -399,14 +458,31 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
                   .split("T")[0]
           }
         />
+      ) : goal.isCompleted ? (
+        <h6>Completed on: {goal.goalCompletedOn}</h6>
       ) : (
         <h6>Deadline: {goal.deadline}</h6>
       )}
-      {completedOrRemaining}
+      {goal.isCompleted ? (
+        <h6>
+          You thought you needed {goal.allocatedDays} days, but you completed In{" "}
+          {goal.completedInDays} Days{" "}
+          {goal.isDeadlineUpdated ? "(updated deadline)" : null}
+        </h6>
+      ) : (
+        <h6>
+          Remaining Days:{" "}
+          {Math.round(
+            (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
+          )}
+        </h6>
+      )}
 
       <div className='icons-div'>
         <MdDelete onClick={handleDeleteGoal} className='icon-danger' />
-        {goal.currentGoal ? <MdDone className='icon' /> : null}
+        {goal.currentGoal ? (
+          <MdDone onClick={handleCompleteGoal} className='icon' />
+        ) : null}
         {goal.isCompleted === false ? (
           editGoalId !== goal.id ? (
             <MdEdit onClick={() => onEditGoal(goal.id)} className='icon-edit' />
