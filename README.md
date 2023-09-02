@@ -47,3 +47,8 @@ allocatedDays history
 reason for good or bad prediction.
 
 delete need to be completed
+
+// multitasking is ineffeciant so,
+// idel mind is devil's home so,
+// goal "make money..." and goal "buy bike..." are overlaping from "date" to "date" (info)
+// updating this goal's deadline will result in changing the remaining goal deadlines as well. Are you sure?
