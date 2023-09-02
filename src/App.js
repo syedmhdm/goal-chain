@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddGoalForm from "./AddGoalForm";
 import GoalChain from "./GoalChain";
 let initialGoalList = [
@@ -118,7 +118,7 @@ function App() {
   const [deadline, setDeadline] = useState("");
   const [goalList, setGoalList] = useState(initialGoalList);
   const [editGoalId, setEditGoalId] = useState("");
-
+  const [showAlert, setShowAlert] = useState(true);
   function handleEditGoal(goalId) {
     setEditGoalId(goalId);
   }
@@ -165,6 +165,8 @@ function App() {
     setDeadline("");
   }
 
+  function yes() {}
+
   return (
     <div className='app'>
       <GoalChain
@@ -181,7 +183,56 @@ function App() {
         setDeadline={setDeadline}
         onHandleAddGoal={handleAddGoal}
       />
+
+      {showAlert && (
+        <Alert
+          setShowAlert={setShowAlert}
+          message={"Are you sure? you wanna delete?"}
+          yes={yes}
+        />
+      )}
     </div>
+  );
+}
+
+function Alert(props) {
+  const [opacity, setOpacity] = useState("opacity-0");
+
+  useEffect(() => {
+    setOpacity("opacity-1");
+  }, []);
+
+  const no = () => {
+    setOpacity("opacity-0");
+    setTimeout(() => {
+      props.setShowAlert(false);
+    }, 300);
+  };
+
+  const yes = () => {
+    setOpacity("opacity-0");
+    setTimeout(() => {
+      props.yes();
+    }, 300);
+  };
+
+  return (
+    <>
+      <Backdrop className={opacity} onClick={no} />
+      <div className={`mainDiv ${opacity}`}>
+        <div>{props.message}</div>
+        <div className={"buttonsDiv"}>
+          <button onClick={yes}>yes</button>
+          <button onClick={no}>no</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Backdrop(props) {
+  return (
+    <div onClick={props.onClick} className={`backdrop ${props.className}`} />
   );
 }
 

@@ -296,3 +296,13 @@ input.picker[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* styls */
+
+.opacity-0 {
+  transition: .3s;
+  opacity: 0;
+}
+
+.opacity-1 {
+  transition: .3s;
+  opacity: 1;
+}
