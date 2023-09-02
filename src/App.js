@@ -228,10 +228,12 @@ function App() {
         <input
           type='text'
           value={goal}
+          maxLength={100}
           onChange={(e) => setGoal(e.target.value)}
         />
         <label>Select Deadline</label>
         <input
+          className='picker'
           type='date'
           value={deadline}
           min={
@@ -266,13 +268,18 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
       .toISOString()
       .split("T")[0]
   );
-  const remainingDays =
+  const completedOrRemaining =
     Math.round((new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)) <
-    0
-      ? 0
-      : Math.round(
+    0 ? (
+      <h6>Completed In {goal.completedInDays} Days</h6>
+    ) : (
+      <h6>
+        Remaining Days:{" "}
+        {Math.round(
           (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-        );
+        )}
+      </h6>
+    );
 
   const previousGoal = goalList.find(
     (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
@@ -299,6 +306,8 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
   }
 
   function handleUpdateGoal(e) {
+    if (!editGoal.trim() || !editDeadline) return;
+
     setGoalList((previousGoalList) => {
       let goalAfterEditGoal = false;
       let editGoalPreviousDeadline;
@@ -352,7 +361,7 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
       className={`goal 
       ${goal.isGoodPrediction === true ? "good-prediction" : ""} 
       ${goal.isGoodPrediction === false ? "bad-prediction" : ""} 
-      ${goal.currentGoal === true ? "current-goal" : ""}`}
+      ${goal.currentGoal === true ? "current-goal" : "grey-out"}`}
     >
       {editGoalId === goal.id ? (
         <input
@@ -360,13 +369,14 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
           type='text'
           value={editGoal}
           onChange={(e) => setEditGoal(e.target.value)}
+          maxLength={100}
         />
       ) : (
         <h5>{goal.goal}</h5>
       )}
       {editGoalId === goal.id ? (
         <input
-          className='edit-input'
+          className='edit-input picker'
           type='date'
           value={editDeadline}
           onChange={(e) => setEditDeadline(e.target.value)}
@@ -392,14 +402,11 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
       ) : (
         <h6>Deadline: {goal.deadline}</h6>
       )}
-      <h6>Remaining Days: {remainingDays}</h6>
+      {completedOrRemaining}
 
       <div className='icons-div'>
-        {goal.currentGoal ? (
-          <MdDone className='icon' />
-        ) : (
-          <MdInfoOutline className='icon' />
-        )}
+        <MdDelete onClick={handleDeleteGoal} className='icon-danger' />
+        {goal.currentGoal ? <MdDone className='icon' /> : null}
         {goal.isCompleted === false ? (
           editGoalId !== goal.id ? (
             <MdEdit onClick={() => onEditGoal(goal.id)} className='icon-edit' />
@@ -407,7 +414,6 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
             <MdSave onClick={handleUpdateGoal} className='icon-edit' />
           )
         ) : null}
-        <MdDelete onClick={handleDeleteGoal} className='icon-danger' />
       </div>
     </div>
   );
