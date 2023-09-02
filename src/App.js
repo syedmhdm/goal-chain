@@ -264,9 +264,9 @@ function Goal({ goal, editGoalId, onEditGoal, setGoalList, goalList }) {
       .toISOString()
       .split("T")[0]
   );
-  const remainingDays = Math.round(
-    (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-  );
+  // const remainingDays = Math.round(
+  //   (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
+  // );
 
   const previousGoal = goalList.find(
     (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
