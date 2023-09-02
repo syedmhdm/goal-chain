@@ -197,7 +197,7 @@ h5 {
   top: 1rem;
   bottom: 1rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   justify-content: space-between;
   max-height: 90%;
 }
@@ -218,13 +218,13 @@ h5 {
 }
 
 .grey-out.good-prediction {
-  background-color: rgb(179, 226, 179);
+  /* background-color: rgb(179, 226, 179); */
   color: rgb(61, 80, 61);
   text-decoration: line-through;
 }
 
 .grey-out.bad-prediction {
-  background-color: rgb(236, 172, 172);
+  /* background-color: rgb(236, 172, 172); */
   color: rgb(90, 56, 56);
   text-decoration: line-through;
 }
