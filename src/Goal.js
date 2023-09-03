@@ -58,20 +58,16 @@ export default function Goal({
             goalAfterEditGoal = true;
             editGoalPreviousDeadline = everyGoal.deadline;
             updatedGoal.deadline = new Date(editDeadline).toDateString();
-            // updatedGoal.isGoodPrediction = false; (only when marked completed)
-            updatedGoal.isDeadlineUpdated = true; // (false if deadline is not updated)
-            updatedGoal.previousAllocatedDays = everyGoal.previousAllocatedDays
-              ? [...everyGoal.previousAllocatedDays, everyGoal.allocatedDays]
-              : [everyGoal.allocatedDays];
-
+            updatedGoal.isDeadlineUpdated = true;
             updatedGoal.allocatedDays = previousGoal
               ? Math.round(
                   new Date(editDeadline) / (1000 * 60 * 60 * 24) -
-                    new Date(previousGoal.deadline) / (1000 * 60 * 60 * 24)
+                    new Date(previousGoal.goalCompletedOn) /
+                      (1000 * 60 * 60 * 24)
                 )
               : Math.round(
                   new Date(editDeadline) / (1000 * 60 * 60 * 24) -
-                    new Date() / (1000 * 60 * 60 * 24)
+                    new Date(goal.goalCreatedAt) / (1000 * 60 * 60 * 24)
                 );
           }
         } else if (goalAfterEditGoal) {
