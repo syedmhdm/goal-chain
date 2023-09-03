@@ -209,7 +209,7 @@ export default function Goal({
       )}
       {goal.isCompleted ? (
         <h6>
-          You thought you needed {goal.allocatedDays} days, but you completed In{" "}
+          Allocated {goal.allocatedDays} Days, Completed in{" "}
           {goal.completedInDays} Days{" "}
           {goal.isDeadlineUpdated ? "(updated deadline)" : null}
         </h6>

@@ -5,6 +5,7 @@ export default function GoalChain({
   editGoalId,
   setGoalList,
   handleEditGoal,
+  children,
 }) {
   return (
     <div className='goal-chain'>
@@ -21,6 +22,7 @@ export default function GoalChain({
             goalList={goalList}
           />
         ))}
+        {children}
       </div>
     </div>
   );

@@ -171,15 +171,16 @@ function App() {
         editGoalId={editGoalId}
         setGoalList={setGoalList}
         handleEditGoal={handleEditGoal}
-      />
-      <AddGoalForm
-        goal={goal}
-        setGoal={setGoal}
-        deadline={deadline}
-        goalList={goalList}
-        setDeadline={setDeadline}
-        onHandleAddGoal={handleAddGoal}
-      />
+      >
+        <AddGoalForm
+          goal={goal}
+          setGoal={setGoal}
+          deadline={deadline}
+          goalList={goalList}
+          setDeadline={setDeadline}
+          onHandleAddGoal={handleAddGoal}
+        />
+      </GoalChain>
     </div>
   );
 }
