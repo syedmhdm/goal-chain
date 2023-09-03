@@ -224,14 +224,14 @@ export default function Goal({
 
       <div className='icons-div'>
         <MdDelete onClick={handleDeleteGoal} className='icon-danger' />
-        {goal.currentGoal ? (
+        {goal.currentGoal && editGoalId !== goal.id ? (
           <MdDone onClick={handleCompleteGoal} className='icon' />
         ) : null}
         {goal.isCompleted === false ? (
-          editGoalId !== goal.id ? (
-            <MdEdit onClick={() => onEditGoal(goal.id)} className='icon-edit' />
-          ) : (
+          editGoalId === goal.id ? (
             <MdSave onClick={handleUpdateGoal} className='icon-edit' />
+          ) : (
+            <MdEdit onClick={() => onEditGoal(goal.id)} className='icon-edit' />
           )
         ) : null}
       </div>
