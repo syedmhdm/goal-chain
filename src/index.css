@@ -36,6 +36,14 @@ body {
   align-items: start; */
 }
 
+h5 {
+  font-size: 1.8rem !important;
+}
+
+h6 {
+  font-size: 1.3rem !important;
+}
+
 .button {
   background-color: var(--color-light);
   color: #343a40;

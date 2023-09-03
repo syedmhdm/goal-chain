@@ -39,7 +39,6 @@ export default function AddGoalForm({
         onChange={(e) => setDeadline(e.target.value)}
         onKeyDown={(e) => e.preventDefault()}
       />
-
       <Button onClick={onHandleAddGoal}>Add Goal</Button>
     </form>
   );
