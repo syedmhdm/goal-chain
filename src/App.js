@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddGoalForm from "./AddGoalForm";
 import GoalChain from "./GoalChain";
 import Signup from "./Signup";
@@ -9,42 +9,55 @@ import Login from "./Login";
 import Logout from "./Logout";
 import PrivateRoutes from "./PrivateRoutes";
 import ForgotPassword from "./ForgotPassword";
-
-let initialGoalList = [];
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./firebase";
 
 function App() {
-  let addDaysToGoals = 0;
-  initialGoalList = initialGoalList.map((goal) => {
-    let updatedGoal = { ...goal };
-    let newDeadline = goal.deadline;
-    if (
-      goal.currentGoal &&
-      Math.round(
-        (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-      ) < 0
-    ) {
-      addDaysToGoals =
-        new Date() / (1000 * 60 * 60 * 24) -
-        new Date(goal.deadline) / (1000 * 60 * 60 * 24);
-
-      updatedGoal.allocatedDays = Math.round(
-        goal.allocatedDays + addDaysToGoals
-      );
-      updatedGoal.isDeadlineUpdated = true;
-    }
-    newDeadline = new Date(
-      new Date(goal.deadline).setDate(
-        new Date(goal.deadline).getDate() + addDaysToGoals
-      )
-    ).toDateString();
-    updatedGoal.deadline = newDeadline;
-    return updatedGoal;
-  });
-
   const [goal, setGoal] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [goalList, setGoalList] = useState(initialGoalList);
   const [editGoalId, setEditGoalId] = useState("");
+  const [goalList, setGoalList] = useState([]);
+  const goalsCollectionRef = collection(db, "goals");
+
+  useEffect(() => {
+    const getGoals = async () => {
+      let addDaysToGoals = 0;
+      const data = await getDocs(goalsCollectionRef);
+      setGoalList(
+        data.docs
+          .map((doc) => {
+            let updatedGoal = { ...doc.data(), id: doc.id };
+            let newDeadline = updatedGoal.deadline;
+            if (
+              updatedGoal.isCurrentGoal &&
+              Math.round(
+                (new Date(updatedGoal.deadline) - new Date()) /
+                  (1000 * 60 * 60 * 24)
+              ) < 0
+            ) {
+              addDaysToGoals =
+                new Date() / (1000 * 60 * 60 * 24) -
+                new Date(updatedGoal.deadline) / (1000 * 60 * 60 * 24);
+              updatedGoal.allocatedDays = Math.round(
+                updatedGoal.allocatedDays + addDaysToGoals
+              );
+              updatedGoal.isDeadlineUpdated = true;
+            }
+            newDeadline = new Date(
+              new Date(updatedGoal.deadline).setDate(
+                new Date(updatedGoal.deadline).getDate() + addDaysToGoals
+              )
+            ).toDateString();
+            updatedGoal.deadline = newDeadline;
+            return updatedGoal;
+          })
+          .sort(function (a, b) {
+            return new Date(a.deadline) - new Date(b.deadline);
+          })
+      );
+    };
+    getGoals();
+  }, []);
 
   function handleEditGoal(goalId) {
     setEditGoalId(goalId);
@@ -84,7 +97,7 @@ function App() {
           completedInDays: null,
           isGoodPrediction: null,
           isDeadlineUpdated: false,
-          currentGoal: curGoal,
+          isCurrentGoal: curGoal,
         },
       ];
     });

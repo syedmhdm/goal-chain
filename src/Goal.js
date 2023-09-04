@@ -30,8 +30,8 @@ export default function Goal({
         }
         if (goal.nextGoalId === el.id) {
           newEl.previousGoalId = goal.previousGoalId;
-          if (goal.currentGoal) {
-            newEl.currentGoal = true;
+          if (goal.isCurrentGoal) {
+            newEl.isCurrentGoal = true;
           }
         }
         return newEl;
@@ -94,7 +94,7 @@ export default function Goal({
           return singleGoal;
         } else if (
           goal.id === singleGoal.id &&
-          singleGoal.currentGoal &&
+          singleGoal.isCurrentGoal &&
           !singleGoal.isCompleted
         ) {
           let completedInDays = 1;
@@ -122,7 +122,7 @@ export default function Goal({
             goalCompletedOn: new Date().toDateString(),
             completedInDays: completedInDays,
             isGoodPrediction: isGoodPrediction,
-            currentGoal: false,
+            isCurrentGoal: false,
           };
         } else if (goal.id === singleGoal.previousGoalId) {
           const addDays =
@@ -131,7 +131,7 @@ export default function Goal({
 
           return {
             ...singleGoal,
-            currentGoal: true,
+            isCurrentGoal: true,
             deadline: new Date(
               new Date(singleGoal.deadline).setDate(
                 new Date(singleGoal.deadline).getDate() + addDays
@@ -164,7 +164,7 @@ export default function Goal({
       className={`goal 
       ${goal.isGoodPrediction === true ? "good-prediction" : ""} 
       ${goal.isGoodPrediction === false ? "bad-prediction" : ""} 
-      ${goal.currentGoal === true ? "current-goal" : "grey-out"}`}
+      ${goal.isCurrentGoal === true ? "current-goal" : "grey-out"}`}
     >
       {editGoalId === goal.id ? (
         <input
@@ -185,7 +185,7 @@ export default function Goal({
           onChange={(e) => setEditDeadline(e.target.value)}
           onKeyDown={(e) => e.preventDefault()}
           min={
-            goal.currentGoal
+            goal.isCurrentGoal
               ? new Date(new Date().setDate(new Date().getDate() + 1))
                   .toISOString()
                   .split("T")[0]
@@ -224,7 +224,7 @@ export default function Goal({
 
       <div className='icons-div'>
         <MdDelete onClick={handleDeleteGoal} className='icon-danger' />
-        {goal.currentGoal && editGoalId !== goal.id ? (
+        {goal.isCurrentGoal && editGoalId !== goal.id ? (
           <MdDone onClick={handleCompleteGoal} className='icon' />
         ) : null}
         {goal.isCompleted === false ? (
