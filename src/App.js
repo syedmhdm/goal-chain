@@ -9,7 +9,13 @@ import Login from "./Login";
 import Logout from "./Logout";
 import PrivateRoutes from "./PrivateRoutes";
 import ForgotPassword from "./ForgotPassword";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
 function App() {
@@ -43,12 +49,14 @@ function App() {
               );
               updatedGoal.isDeadlineUpdated = true;
             }
-            newDeadline = new Date(
-              new Date(updatedGoal.deadline).setDate(
-                new Date(updatedGoal.deadline).getDate() + addDaysToGoals
-              )
-            ).toDateString();
-            updatedGoal.deadline = newDeadline;
+            if (addDaysToGoals !== 0) {
+              newDeadline = new Date(
+                new Date(updatedGoal.deadline).setDate(
+                  new Date(updatedGoal.deadline).getDate() + addDaysToGoals
+                )
+              ).toDateString();
+              updatedGoal.deadline = newDeadline;
+            }
             return updatedGoal;
           })
           .sort(function (a, b) {
@@ -62,45 +70,85 @@ function App() {
   function handleEditGoal(goalId) {
     setEditGoalId(goalId);
   }
-  function handleAddGoal(e) {
+  async function handleAddGoal(e) {
     e.preventDefault();
     if (!goal.trim() || !deadline) return;
-    setGoalList((currGoalList) => {
-      const previousGoalId = currGoalList.at(-1)?.id;
-      const previousGoalIsCompleted = currGoalList.at(-1)?.isCompleted;
-      const previousGoalDeadline = currGoalList.at(-1)?.deadline;
-      const curGoal = previousGoalIsCompleted ? true : !previousGoalId;
-      const id = crypto.randomUUID();
-      let updatedGoalList = [...currGoalList];
-      if (updatedGoalList.length > 0) {
-        updatedGoalList[updatedGoalList.length - 1].nextGoalId = id;
-      }
-      return [
-        ...updatedGoalList,
-        {
-          id: id,
-          goal: goal,
-          deadline: new Date(deadline).toDateString(),
-          isCompleted: false,
-          goalCreatedAt: new Date().toDateString(),
-          previousGoalId: previousGoalId,
-          nextGoalId: null,
-          allocatedDays: previousGoalDeadline
-            ? Math.round(
-                new Date(deadline) / (1000 * 60 * 60 * 24) -
-                  new Date(previousGoalDeadline) / (1000 * 60 * 60 * 24)
-              )
-            : Math.round(
-                new Date(deadline) / (1000 * 60 * 60 * 24) -
-                  new Date() / (1000 * 60 * 60 * 24)
-              ),
-          completedInDays: null,
-          isGoodPrediction: null,
-          isDeadlineUpdated: false,
-          isCurrentGoal: curGoal,
-        },
-      ];
-    });
+
+    const previousGoalId = goalList.at(-1)?.id ? goalList.at(-1)?.id : null;
+    const previousGoalDeadline = goalList.at(-1)?.deadline
+      ? goalList.at(-1)?.deadline
+      : null;
+    const previousGoalIsCompleted = goalList.at(-1)?.isCompleted
+      ? goalList.at(-1)?.isCompleted
+      : null;
+    const curGoal = previousGoalIsCompleted ? true : !previousGoalId;
+
+    let newGoal = {
+      goal: goal,
+      deadline: new Date(deadline).toDateString(),
+      isCompleted: false,
+      goalCreatedAt: new Date().toDateString(),
+      previousGoalId: previousGoalId,
+      nextGoalId: null,
+      allocatedDays: previousGoalDeadline
+        ? Math.round(
+            new Date(deadline) / (1000 * 60 * 60 * 24) -
+              new Date(previousGoalDeadline) / (1000 * 60 * 60 * 24)
+          )
+        : Math.round(
+            new Date(deadline) / (1000 * 60 * 60 * 24) -
+              new Date() / (1000 * 60 * 60 * 24)
+          ),
+      completedInDays: null,
+      isGoodPrediction: null,
+      isDeadlineUpdated: false,
+      isCurrentGoal: curGoal,
+    };
+
+    const newlyAddedDocId = await (
+      await addDoc(goalsCollectionRef, newGoal)
+    ).id;
+    if (goalList.length > 0) {
+      const goalDoc = doc(db, "goals", previousGoalId);
+      const newFields = { nextGoalId: newlyAddedDocId };
+      await updateDoc(goalDoc, newFields);
+    }
+    // setGoalList((currGoalList) => {
+    //   const previousGoalId = currGoalList.at(-1)?.id;
+    //   const previousGoalIsCompleted = currGoalList.at(-1)?.isCompleted;
+    //   const previousGoalDeadline = currGoalList.at(-1)?.deadline;
+    //   const curGoal = previousGoalIsCompleted ? true : !previousGoalId;
+    //   const id = crypto.randomUUID();
+    //   let updatedGoalList = [...currGoalList];
+    //   if (updatedGoalList.length > 0) {
+    //     updatedGoalList[updatedGoalList.length - 1].nextGoalId = id;
+    //   }
+    //   return [
+    //     ...updatedGoalList,
+    //     {
+    //       id: id,
+    //       goal: goal,
+    //       deadline: new Date(deadline).toDateString(),
+    //       isCompleted: false,
+    //       goalCreatedAt: new Date().toDateString(),
+    //       previousGoalId: previousGoalId,
+    //       nextGoalId: null,
+    //       allocatedDays: previousGoalDeadline
+    //         ? Math.round(
+    //             new Date(deadline) / (1000 * 60 * 60 * 24) -
+    //               new Date(previousGoalDeadline) / (1000 * 60 * 60 * 24)
+    //           )
+    //         : Math.round(
+    //             new Date(deadline) / (1000 * 60 * 60 * 24) -
+    //               new Date() / (1000 * 60 * 60 * 24)
+    //           ),
+    //       completedInDays: null,
+    //       isGoodPrediction: null,
+    //       isDeadlineUpdated: false,
+    //       isCurrentGoal: curGoal,
+    //     },
+    //   ];
+    // });
     setGoal("");
     setDeadline("");
   }

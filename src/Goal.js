@@ -1,5 +1,7 @@
+import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { MdDone, MdDelete, MdEdit, MdSave } from "react-icons/md";
+import { db } from "./firebase";
 export default function Goal({
   goal,
   editGoalId,
@@ -20,70 +22,80 @@ export default function Goal({
     (isPreviousGoal) => isPreviousGoal.id === goal.previousGoalId
   );
 
-  function handleDeleteGoal(e) {
+  async function handleDeleteGoal(e) {
     // alert (are you sure that "this goal" is not your cup of tea?)
-    setGoalList((otherGoals) => {
-      const newGoals = otherGoals.map((el) => {
-        let newEl = { ...el };
-        if (goal.previousGoalId === el.id) {
-          newEl.nextGoalId = goal.nextGoalId;
-        }
-        if (goal.nextGoalId === el.id) {
-          newEl.previousGoalId = goal.previousGoalId;
-          if (goal.isCurrentGoal) {
-            newEl.isCurrentGoal = true;
-          }
-        }
-        return newEl;
-      });
-      return newGoals.filter((el) => el.id !== goal.id);
-    });
+    // setGoalList((otherGoals) => {
+    //   const newGoals = otherGoals.map((el) => {
+    //     let newEl = { ...el };
+    //     if (goal.previousGoalId === el.id) {
+    //       newEl.nextGoalId = goal.nextGoalId;
+    //     }
+    //     if (goal.nextGoalId === el.id) {
+    //       newEl.previousGoalId = goal.previousGoalId;
+    //       if (goal.isCurrentGoal) {
+    //         newEl.isCurrentGoal = true;
+    //       }
+    //     }
+    //     return newEl;
+    //   });
+    //   return newGoals.filter((el) => el.id !== goal.id);
+    // });
+
+    const goalDoc = doc(db, "goals", goal.id);
+    await deleteDoc(goalDoc);
   }
 
-  function handleUpdateGoal(e) {
+  async function handleUpdateGoal(e) {
     if (!editGoal.trim() || !editDeadline) return;
 
-    setGoalList((previousGoalList) => {
-      let goalAfterEditGoal = false;
-      let editGoalPreviousDeadline;
+    // setGoalList((previousGoalList) => {
+    //   let goalAfterEditGoal = false;
+    //   let editGoalPreviousDeadline;
 
-      const updatedGoalList = previousGoalList.map((everyGoal) => {
-        let updatedGoal = { ...everyGoal };
-        if (everyGoal.isCompleted === true) {
-          return updatedGoal;
-        } else if (editGoalId === everyGoal.id) {
-          updatedGoal.goal = editGoal;
+    //   const updatedGoalList = previousGoalList.map((everyGoal) => {
+    //     let updatedGoal = { ...everyGoal };
+    //     if (everyGoal.isCompleted === true) {
+    //       return updatedGoal;
+    //     } else if (editGoalId === everyGoal.id) {
+    //       updatedGoal.goal = editGoal;
 
-          if (everyGoal.deadline !== new Date(editDeadline).toDateString()) {
-            goalAfterEditGoal = true;
-            editGoalPreviousDeadline = everyGoal.deadline;
-            updatedGoal.deadline = new Date(editDeadline).toDateString();
-            updatedGoal.isDeadlineUpdated = true;
-            updatedGoal.allocatedDays = previousGoal
-              ? Math.round(
-                  new Date(editDeadline) / (1000 * 60 * 60 * 24) -
-                    new Date(previousGoal.goalCompletedOn) /
-                      (1000 * 60 * 60 * 24)
-                )
-              : Math.round(
-                  new Date(editDeadline) / (1000 * 60 * 60 * 24) -
-                    new Date(goal.goalCreatedAt) / (1000 * 60 * 60 * 24)
-                );
-          }
-        } else if (goalAfterEditGoal) {
-          const plusOrMinusDays =
-            new Date(editDeadline) / (1000 * 60 * 60 * 24) -
-            new Date(editGoalPreviousDeadline) / (1000 * 60 * 60 * 24);
-          updatedGoal.deadline = new Date(
-            new Date(everyGoal.deadline).setDate(
-              new Date(everyGoal.deadline).getDate() + plusOrMinusDays
-            )
-          ).toDateString();
-        }
-        return updatedGoal;
-      });
-      return updatedGoalList;
-    });
+    //       if (everyGoal.deadline !== new Date(editDeadline).toDateString()) {
+    //         goalAfterEditGoal = true;
+    //         editGoalPreviousDeadline = everyGoal.deadline;
+    //         updatedGoal.deadline = new Date(editDeadline).toDateString();
+    //         updatedGoal.isDeadlineUpdated = true;
+    //         updatedGoal.allocatedDays = previousGoal
+    //           ? Math.round(
+    //               new Date(editDeadline) / (1000 * 60 * 60 * 24) -
+    //                 new Date(previousGoal.goalCompletedOn) /
+    //                   (1000 * 60 * 60 * 24)
+    //             )
+    //           : Math.round(
+    //               new Date(editDeadline) / (1000 * 60 * 60 * 24) -
+    //                 new Date(goal.goalCreatedAt) / (1000 * 60 * 60 * 24)
+    //             );
+    //       }
+    //     } else if (goalAfterEditGoal) {
+    //       const plusOrMinusDays =
+    //         new Date(editDeadline) / (1000 * 60 * 60 * 24) -
+    //         new Date(editGoalPreviousDeadline) / (1000 * 60 * 60 * 24);
+    //       updatedGoal.deadline = new Date(
+    //         new Date(everyGoal.deadline).setDate(
+    //           new Date(everyGoal.deadline).getDate() + plusOrMinusDays
+    //         )
+    //       ).toDateString();
+    //     }
+    //     return updatedGoal;
+    //   });
+    //   return updatedGoalList;
+    // });
+
+    if (goalList.length > 0) {
+      const goalDoc = doc(db, "goals", goal.id);
+      const newFields = { goal: editGoal, deadline: editDeadline };
+      await updateDoc(goalDoc, newFields);
+    }
+
     onEditGoal("");
   }
 
