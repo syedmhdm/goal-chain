@@ -8,6 +8,8 @@ export default function Goal({
   onEditGoal,
   setGoalList,
   goalList,
+  getGoals,
+  database,
 }) {
   const [editGoal, setEditGoal] = useState(goal.goal);
   const [editDeadline, setEditDeadline] = useState(
@@ -41,8 +43,27 @@ export default function Goal({
     //   return newGoals.filter((el) => el.id !== goal.id);
     // });
 
-    const goalDoc = doc(db, "goals", goal.id);
+    if (goal.previousGoalId) {
+      const goalDoc = doc(db, database, goal.previousGoalId);
+      const newFields = { nextGoalId: goal.nextGoalId };
+      await updateDoc(goalDoc, newFields);
+    }
+    if (goal.nextGoalId) {
+      let curGoal = false;
+      if (goal.isCurrentGoal) {
+        curGoal = true;
+      }
+      const goalDoc = doc(db, database, goal.nextGoalId);
+      const newFields = {
+        previousGoalId: goal.previousGoalId,
+        isCurrentGoal: curGoal,
+      };
+      await updateDoc(goalDoc, newFields);
+    }
+
+    const goalDoc = doc(db, database, goal.id);
     await deleteDoc(goalDoc);
+    getGoals();
   }
 
   async function handleUpdateGoal(e) {
@@ -91,84 +112,99 @@ export default function Goal({
     // });
 
     if (goalList.length > 0) {
-      const goalDoc = doc(db, "goals", goal.id);
+      const goalDoc = doc(db, database, goal.id);
       const newFields = { goal: editGoal, deadline: editDeadline };
       await updateDoc(goalDoc, newFields);
+      getGoals();
     }
 
     onEditGoal("");
   }
 
-  function handleCompleteGoal(e) {
-    setGoalList((previousGoalList) => {
-      const updatedGoals = previousGoalList.map((singleGoal) => {
-        if (singleGoal.isCompleted) {
-          return singleGoal;
-        } else if (
-          goal.id === singleGoal.id &&
-          singleGoal.isCurrentGoal &&
-          !singleGoal.isCompleted
-        ) {
-          let completedInDays = 1;
-          let isGoodPrediction = true;
-          let hlpr = Math.ceil(goal.allocatedDays / 4);
-          if (hlpr > 25) {
-            hlpr = 25;
-          }
-          let goalStartDate = goal.goalCreatedAt;
-          if (previousGoal) {
-            goalStartDate = previousGoal.goalCompletedOn;
-          }
-          completedInDays = Math.round(
-            new Date() / (1000 * 60 * 60 * 24) -
-              new Date(goalStartDate) / (1000 * 60 * 60 * 24)
-          );
-          if (goal.isDeadlineUpdated) {
-            isGoodPrediction = false;
-          } else if (goal.allocatedDays - completedInDays > hlpr) {
-            isGoodPrediction = false;
-          }
-          return {
-            ...singleGoal,
-            isCompleted: true,
-            goalCompletedOn: new Date().toDateString(),
-            completedInDays: completedInDays,
-            isGoodPrediction: isGoodPrediction,
-            isCurrentGoal: false,
-          };
-        } else if (goal.id === singleGoal.previousGoalId) {
-          const addDays =
-            new Date() / (1000 * 60 * 60 * 24) -
-            new Date(goal.deadline) / (1000 * 60 * 60 * 24);
+  async function handleCompleteGoal(e) {
+    // setGoalList((previousGoalList) => {
+    //   const updatedGoals = previousGoalList.map((singleGoal) => {
+    //     if (singleGoal.isCompleted) {
+    //       return singleGoal;
+    //     } else if (
+    //       goal.id === singleGoal.id &&
+    //       singleGoal.isCurrentGoal &&
+    //       !singleGoal.isCompleted
+    //     ) {
+    //       let completedInDays = 1;
+    //       let isGoodPrediction = true;
+    //       let hlpr = Math.ceil(goal.allocatedDays / 4);
+    //       if (hlpr > 25) {
+    //         hlpr = 25;
+    //       }
+    //       let goalStartDate = goal.goalCreatedAt;
+    //       if (previousGoal) {
+    //         goalStartDate = previousGoal.goalCompletedOn;
+    //       }
+    //       completedInDays = Math.round(
+    //         new Date() / (1000 * 60 * 60 * 24) -
+    //           new Date(goalStartDate) / (1000 * 60 * 60 * 24)
+    //       );
+    //       if (goal.isDeadlineUpdated) {
+    //         isGoodPrediction = false;
+    //       } else if (goal.allocatedDays - completedInDays > hlpr) {
+    //         isGoodPrediction = false;
+    //       }
+    //       return {
+    //         ...singleGoal,
+    //         isCompleted: true,
+    //         goalCompletedOn: new Date().toDateString(),
+    //         completedInDays: completedInDays,
+    //         isGoodPrediction: isGoodPrediction,
+    //         isCurrentGoal: false,
+    //       };
+    //     } else if (goal.id === singleGoal.previousGoalId) {
+    //       const addDays =
+    //         new Date() / (1000 * 60 * 60 * 24) -
+    //         new Date(goal.deadline) / (1000 * 60 * 60 * 24);
+    //       return {
+    //         ...singleGoal,
+    //         isCurrentGoal: true,
+    //         deadline: new Date(
+    //           new Date(singleGoal.deadline).setDate(
+    //             new Date(singleGoal.deadline).getDate() + addDays
+    //           )
+    //         ).toDateString(),
+    //       };
+    //     } else if (!singleGoal.isCompleted) {
+    //       const addDays =
+    //         new Date() / (1000 * 60 * 60 * 24) -
+    //         new Date(goal.deadline) / (1000 * 60 * 60 * 24);
+    //       return {
+    //         ...singleGoal,
+    //         deadline: new Date(
+    //           new Date(singleGoal.deadline).setDate(
+    //             new Date(singleGoal.deadline).getDate() + addDays
+    //           )
+    //         ).toDateString(),
+    //       };
+    //     } else {
+    //       return singleGoal;
+    //     }
+    //   });
+    //   return updatedGoals;
+    // });
 
-          return {
-            ...singleGoal,
-            isCurrentGoal: true,
-            deadline: new Date(
-              new Date(singleGoal.deadline).setDate(
-                new Date(singleGoal.deadline).getDate() + addDays
-              )
-            ).toDateString(),
-          };
-        } else if (!singleGoal.isCompleted) {
-          const addDays =
-            new Date() / (1000 * 60 * 60 * 24) -
-            new Date(goal.deadline) / (1000 * 60 * 60 * 24);
-
-          return {
-            ...singleGoal,
-            deadline: new Date(
-              new Date(singleGoal.deadline).setDate(
-                new Date(singleGoal.deadline).getDate() + addDays
-              )
-            ).toDateString(),
-          };
-        } else {
-          return singleGoal;
-        }
-      });
-      return updatedGoals;
-    });
+    if (goalList.length > 0) {
+      const goalDoc = doc(db, database, goal.id);
+      const newFields = {
+        isCompleted: true,
+        isCurrentGoal: false,
+        goalCompletedOn: new Date().toDateString(),
+      };
+      await updateDoc(goalDoc, newFields);
+      if (goal.nextGoalId) {
+        const goalDoc2 = doc(db, database, goal.nextGoalId);
+        const newFields2 = { isCurrentGoal: true };
+        await updateDoc(goalDoc2, newFields2);
+      }
+      getGoals();
+    }
   }
 
   return (
@@ -214,24 +250,13 @@ export default function Goal({
                   .split("T")[0]
           }
         />
-      ) : goal.isCompleted ? (
-        <h6>Completed on: {goal.goalCompletedOn}</h6>
+      ) : goal.goalCompletedOn ? (
+        <>
+          <h6>Deadline: {goal.deadline}</h6>
+          <h6>Completed on: {goal.goalCompletedOn}</h6>
+        </>
       ) : (
         <h6>Deadline: {goal.deadline}</h6>
-      )}
-      {goal.isCompleted ? (
-        <h6>
-          Allocated {goal.allocatedDays} Days, Completed in{" "}
-          {goal.completedInDays} Days{" "}
-          {goal.isDeadlineUpdated ? "(updated deadline)" : null}
-        </h6>
-      ) : (
-        <h6>
-          Remaining Days:{" "}
-          {Math.round(
-            (new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24)
-          )}
-        </h6>
       )}
 
       <div className='icons-div'>
