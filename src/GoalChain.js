@@ -6,6 +6,8 @@ export default function GoalChain({
   setGoalList,
   handleEditGoal,
   children,
+  getGoals,
+  database,
 }) {
   return (
     <div className='goal-chain'>
@@ -20,6 +22,8 @@ export default function GoalChain({
             editGoalId={editGoalId}
             setGoalList={setGoalList}
             goalList={goalList}
+            getGoals={getGoals}
+            database={database}
           />
         ))}
         {children}
