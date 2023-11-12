@@ -1,0 +1,14 @@
+{
+  "goals": [
+    {
+      "goal": "New Goal",
+      "deadline": "2023-11-12T18:30:00.000Z",
+      "id": 8
+    },
+    {
+      "goal": "Test Goal",
+      "deadline": "2023-11-13T18:30:00.000Z",
+      "id": 9
+    }
+  ]
+}

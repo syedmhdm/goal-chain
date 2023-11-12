@@ -1,9 +1,23 @@
+/* Taken from getting started guide at: https://leafletjs.com/examples/quick-start/ */
+/* @import "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+@import "https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"; */
+
+/* These CSS variables are global, so they are available in all CSS modules */
+
 :root {
   --color-lightest: #d5dbf5;
   --color-light: #cdc2e7;
   --color-medium: #a830c4;
   --color-dark: #292E1E;
 
+  --color-brand--1: #ffb545;
+  --color-brand--2: #00c46a;
+  --color-dark--0: #242a2e;
+  --color-dark--1: #2d3439;
+  --color-dark--2: #42484d;
+  --color-light--1: #aaa;
+  --color-light--2: #ececec;
+  --color-light--3: #d6dee0;
 }
 
 * {
@@ -79,6 +93,7 @@ h6 {
 label {
   font-weight: 500;
   margin-bottom: 1rem;
+  color: var(--color-light--3);
 }
 
 
@@ -254,3 +269,5 @@ input.picker[type="date"]::-webkit-calendar-picker-indicator {
   color: transparent;
   background: transparent;
 }
+
+/*  */
