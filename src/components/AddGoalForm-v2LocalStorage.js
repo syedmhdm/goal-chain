@@ -3,9 +3,9 @@ import styles from "../pages/Login.module.css";
 import Button from "../components/Button";
 import Datepicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useGoals } from "../contexts/GoalsContext";
+import { useGoalsLocalStorage } from "../contexts/GoalsContextLocalStorage";
 
-export default function AddGoalForm() {
+export default function AddGoalFormLocalStorage() {
   const [goal, setGoal] = useState("New Goal");
   const [deadline, setDeadline] = useState("");
   const {
@@ -14,7 +14,7 @@ export default function AddGoalForm() {
     currentEditGoal,
     updateGoal,
     setCurrentEditGoal,
-  } = useGoals();
+  } = useGoalsLocalStorage();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -24,6 +24,7 @@ export default function AddGoalForm() {
         goal,
         deadline,
         isCompleted: false,
+        id: crypto.randomUUID(),
       };
       if (currentEditGoal.id) {
         const updatedGoal = { ...currentEditGoal, goal, deadline };

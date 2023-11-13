@@ -2,13 +2,45 @@
   "goals": [
     {
       "goal": "New Goal",
-      "deadline": "2023-11-12T18:30:00.000Z",
-      "id": 8
+      "deadline": "2023-11-22T18:30:00.000Z",
+      "isCompleted": true,
+      "id": 12
     },
     {
-      "goal": "Test Goal",
-      "deadline": "2023-11-13T18:30:00.000Z",
-      "id": 9
+      "goal": "New Goal sdfadd",
+      "deadline": "2023-11-09T18:30:00.000Z",
+      "isCompleted": true,
+      "id": 15
+    },
+    {
+      "goal": "next goal",
+      "deadline": "2023-11-17T18:30:00.000Z",
+      "isCompleted": true,
+      "id": 16
+    },
+    {
+      "goal": "complet goal chain",
+      "deadline": "2023-11-15T18:30:00.000Z",
+      "isCompleted": false,
+      "id": 17
+    },
+    {
+      "goal": "New Goal",
+      "deadline": "2023-11-14T18:30:00.000Z",
+      "isCompleted": false,
+      "id": 18
+    },
+    {
+      "goal": "New Goal",
+      "deadline": "2023-11-02T18:30:00.000Z",
+      "isCompleted": false,
+      "id": 19
+    },
+    {
+      "goal": "ttt22",
+      "deadline": "2023-11-15T18:30:00.000Z",
+      "isCompleted": false,
+      "id": 20
     }
   ]
 }

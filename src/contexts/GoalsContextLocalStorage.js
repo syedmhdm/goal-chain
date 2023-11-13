@@ -6,7 +6,6 @@ import {
   useState,
 } from "react";
 
-const BASE_URL = "http://localhost:8000";
 const initialState = {
   goals: [],
   isLoading: false,
@@ -17,12 +16,22 @@ function reducer(state, action) {
   switch (action.type) {
     case "loading":
       return { ...state, isLoading: true };
-    case "goals/loaded":
-      return {
-        ...state,
-        isLoading: false,
-        goals: action.payload,
-      };
+    case "goals/loaded": {
+      if (action.payload?.length) {
+        return {
+          ...state,
+          isLoading: false,
+          goals: action.payload,
+        };
+      } else {
+        localStorage.setItem("goals", JSON.stringify([]));
+        return {
+          ...state,
+          isLoading: false,
+          goals: JSON.parse(localStorage.getItem("goals")),
+        };
+      }
+    }
     case "goal/created":
       return {
         ...state,
@@ -33,31 +42,21 @@ function reducer(state, action) {
       return {
         ...state,
         isLoading: false,
-        goals: state.goals.filter((el) => el.id !== action.payload.id),
+        goals: action.payload,
       };
     }
     case "goal/completed": {
       return {
         ...state,
         isLoading: false,
-        goals: state.goals.map((el) => {
-          if (el.id === action.payload.id) {
-            return { ...el, isCompleted: true };
-          }
-          return el;
-        }),
+        goals: action.payload,
       };
     }
     case "goal/updated": {
       return {
         ...state,
         isLoading: false,
-        goals: state.goals.map((el) => {
-          if (el.id === action.payload.id) {
-            return action.payload;
-          }
-          return el;
-        }),
+        goals: action.payload,
       };
     }
     case "rejected":
@@ -71,9 +70,9 @@ function reducer(state, action) {
   }
 }
 
-const GoalsContext = createContext();
+const GoalsLocalStorageContext = createContext();
 
-function GoalsContextProvider({ children }) {
+function GoalsLocalStorageContextProvider({ children }) {
   const [currentEditGoal, setCurrentEditGoal] = useState({});
   const [isLocalStorageGoals, setIsLocalStorageGoals] = useState(false);
   const [{ goals, isLoading, error }, dispatch] = useReducer(
@@ -85,8 +84,7 @@ function GoalsContextProvider({ children }) {
     async function fetchGoals() {
       dispatch({ type: "loading" });
       try {
-        const res = await fetch(`${BASE_URL}/goals`);
-        const data = await res.json();
+        const data = JSON.parse(localStorage.getItem("goals"));
         dispatch({ type: "goals/loaded", payload: data });
       } catch (err) {
         dispatch({
@@ -101,16 +99,8 @@ function GoalsContextProvider({ children }) {
   async function createGoal(newGoal) {
     dispatch({ type: "loading" });
     try {
-      const res = await fetch(`${BASE_URL}/goals`, {
-        method: "POST",
-        body: JSON.stringify(newGoal),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-
-      dispatch({ type: "goal/created", payload: data });
+      localStorage.setItem("goals", JSON.stringify([...goals, newGoal]));
+      dispatch({ type: "goal/created", payload: newGoal });
     } catch (error) {
       dispatch({
         type: "rejected",
@@ -121,11 +111,11 @@ function GoalsContextProvider({ children }) {
   async function deleteGoal(goal) {
     dispatch({ type: "loading" });
     try {
-      await fetch(`${BASE_URL}/goals/${goal.id}`, {
-        method: "DELETE",
-      });
+      const data = goals.filter((el) => el.id !== goal.id);
 
-      dispatch({ type: "goal/deleted", payload: goal });
+      localStorage.setItem("goals", JSON.stringify(data));
+
+      dispatch({ type: "goal/deleted", payload: data });
     } catch (error) {
       dispatch({
         type: "rejected",
@@ -136,18 +126,16 @@ function GoalsContextProvider({ children }) {
   async function completeGoal(goal) {
     dispatch({ type: "loading" });
     try {
-      await fetch(`${BASE_URL}/goals/${goal.id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          ...goal,
-          isCompleted: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const data = goals.map((el) => {
+        if (el.id === goal.id) {
+          return { ...el, isCompleted: true };
+        }
+        return el;
       });
 
-      dispatch({ type: "goal/completed", payload: goal });
+      localStorage.setItem("goals", JSON.stringify(data));
+
+      dispatch({ type: "goal/completed", payload: data });
     } catch (error) {
       dispatch({
         type: "rejected",
@@ -158,15 +146,16 @@ function GoalsContextProvider({ children }) {
   async function updateGoal(goal) {
     dispatch({ type: "loading" });
     try {
-      await fetch(`${BASE_URL}/goals/${goal.id}`, {
-        method: "PUT",
-        body: JSON.stringify(goal),
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const data = goals.map((el) => {
+        if (el.id === goal.id) {
+          return goal;
+        }
+        return el;
       });
 
-      dispatch({ type: "goal/updated", payload: goal });
+      localStorage.setItem("goals", JSON.stringify(data));
+
+      dispatch({ type: "goal/updated", payload: data });
     } catch (error) {
       dispatch({
         type: "rejected",
@@ -175,7 +164,7 @@ function GoalsContextProvider({ children }) {
     }
   }
   return (
-    <GoalsContext.Provider
+    <GoalsLocalStorageContext.Provider
       value={{
         createGoal,
         isLoading,
@@ -191,15 +180,17 @@ function GoalsContextProvider({ children }) {
       }}
     >
       {children}
-    </GoalsContext.Provider>
+    </GoalsLocalStorageContext.Provider>
   );
 }
 
-function useGoals() {
-  const context = useContext(GoalsContext);
+function useGoalsLocalStorage() {
+  const context = useContext(GoalsLocalStorageContext);
   if (context === undefined)
-    throw new Error("Goals context can not be accessed GoalsContextProvider");
+    throw new Error(
+      "Goals context can not be accessed GoalsLocalStorageContextProvider"
+    );
   return context;
 }
 
-export { GoalsContextProvider, useGoals };
+export { GoalsLocalStorageContextProvider, useGoalsLocalStorage };

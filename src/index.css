@@ -9,7 +9,6 @@
   --color-light: #cdc2e7;
   --color-medium: #a830c4;
   --color-dark: #292E1E;
-
   --color-brand--1: #ffb545;
   --color-brand--2: #00c46a;
   --color-dark--0: #242a2e;
@@ -183,6 +182,11 @@ h5 {
   background-color: rgb(179, 226, 179);
 }
 
+.good-prediction-2 {
+  background-color: rgb(179, 226, 179);
+  color: var(--color-dark--1);
+}
+
 .bad-prediction {
   background-color: rgb(236, 172, 172);
 }
@@ -205,6 +209,16 @@ h5 {
 
 .icon {
   color: darkgreen;
+}
+
+.icon-2 {
+  color: var(--color-dark--2);
+  cursor: pointer;
+}
+
+.grey-out .icon-2 {
+  color: #adadad;
+  cursor: pointer;
 }
 
 .icon-edit {
@@ -252,6 +266,13 @@ h5 {
 .grey-out.bad-prediction {
   background-color: rgb(236, 172, 172);
   color: rgb(90, 56, 56);
+  text-decoration: line-through;
+}
+
+.grey-out.good-prediction-2 {
+  background-color: #343a40;
+  background-color: var(--color-dark--2);
+  color: #adadad;
   text-decoration: line-through;
 }
 

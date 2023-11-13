@@ -27,7 +27,7 @@ function reducer(state, action) {
 }
 
 const FAKE_USER = {
-  name: "Jack",
+  name: "Muzzammil",
   email: "jack@example.com",
   password: "qwerty@842",
   avatar: "https://i.pravatar.cc/100?u=zz",
@@ -39,8 +39,18 @@ function AuthProvider({ children }) {
   );
 
   function login(email, password) {
-    if (email === FAKE_USER.email && password === FAKE_USER.password) {
-      dispatch({ type: "login", payload: FAKE_USER });
+    if (
+      email === process.env.REACT_APP_FAKE_LOGIN_EMAIL &&
+      password === process.env.REACT_APP_FAKE_LOGIN_PASSWORD
+    ) {
+      dispatch({
+        type: "login",
+        payload: {
+          ...FAKE_USER,
+          email: process.env.REACT_APP_FAKE_LOGIN_EMAIL,
+          password: process.env.REACT_APP_FAKE_LOGIN_PASSWORD,
+        },
+      });
     }
   }
 

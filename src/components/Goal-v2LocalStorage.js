@@ -1,7 +1,8 @@
 import { MdDone, MdDelete, MdEdit } from "react-icons/md";
-import { useGoals } from "../contexts/GoalsContext";
-export default function Goal({ goal }) {
-  const { deleteGoal, completeGoal, setCurrentEditGoal } = useGoals();
+import { useGoalsLocalStorage } from "../contexts/GoalsContextLocalStorage";
+export default function GoalLocalStorage({ goal }) {
+  const { deleteGoal, completeGoal, setCurrentEditGoal } =
+    useGoalsLocalStorage();
 
   async function handleDeleteGoal(e) {
     deleteGoal(goal);
